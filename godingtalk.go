@@ -139,7 +139,7 @@ func (c *DingTalkClient) RefreshAccessToken() error {
 //GetJsAPITicket is to get a valid ticket for JS API
 func (c *DingTalkClient) GetJsAPITicket() (ticket string, err error) {
 	var data JsAPITicketResponse
-	cache := NewFileCache(".jsapi_ticket")
+	cache := NewFileCache(fmt.Sprintf("dingtalk_%s.jsapi_ticket", c.AppKey))
 	err = cache.Get(&data)
 	if err == nil {
 		return data.Ticket, err
