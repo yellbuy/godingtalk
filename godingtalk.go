@@ -16,8 +16,8 @@ const (
 
 //DingTalkClient is the Client to access DingTalk Open API
 type DingTalkClient struct {
-	CorpID      string
-	CorpSecret  string
+	AppKey      string
+	AppSecret   string
 	AgentID     string
 	PartnerID   string
 	AccessToken string
@@ -103,14 +103,14 @@ func (e *JsAPITicketResponse) ExpiresIn() int {
 }
 
 //NewDingTalkClient creates a DingTalkClient instance
-func NewDingTalkClient(corpID string, corpSecret string) *DingTalkClient {
+func NewDingTalkClient(appKey string, appSecret string) *DingTalkClient {
 	c := new(DingTalkClient)
-	c.CorpID = corpID
-	c.CorpSecret = corpSecret
+	c.AppKey = appKey
+	c.AppSecret = appSecret
 	c.HTTPClient = &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	c.Cache = NewFileCache(".auth_file")
+	c.Cache = NewFileCache(fmt.Sprintf("dingtalk_%s.auth_file", appKey))
 	return c
 }
 
@@ -124,8 +124,8 @@ func (c *DingTalkClient) RefreshAccessToken() error {
 	}
 
 	params := url.Values{}
-	params.Add("corpid", c.CorpID)
-	params.Add("corpsecret", c.CorpSecret)
+	params.Add("appkey", c.AppKey)
+	params.Add("appsecret", c.AppSecret)
 	err = c.httpRPC("gettoken", params, nil, &data)
 	if err == nil {
 		c.AccessToken = data.AccessToken
@@ -160,7 +160,7 @@ func (c *DingTalkClient) GetConfig(nonceStr string, timestamp string, url string
 		"nonceStr":  nonceStr,
 		"agentId":   c.AgentID,
 		"timeStamp": timestamp,
-		"corpId":    c.CorpID,
+		"appKey":    c.AppKey,
 		"ticket":    ticket,
 		"signature": Sign(ticket, nonceStr, timestamp, url),
 	}
